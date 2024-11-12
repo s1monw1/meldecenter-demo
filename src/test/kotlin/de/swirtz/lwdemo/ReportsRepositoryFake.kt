@@ -29,7 +29,10 @@ class ReportsRepositoryFake : ReportsRepository {
         allowedStatus: List<String>,
         limit: Int
     ): List<ReportEntity> {
-        throw UnsupportedOperationException()
+        return entities
+            .filter { it.type.name == reportType }
+            .filter { it.status.name in allowedStatus }
+            .take(limit)
     }
 
     override fun deleteAll() {
