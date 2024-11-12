@@ -4,13 +4,22 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import de.swirtz.lwdemo.controller.dto.ClientContactDetailsDTO
 import de.swirtz.lwdemo.controller.dto.ReportDTO
 import de.swirtz.lwdemo.data.model.ReportEntity
+import de.swirtz.lwdemo.domain.ClientContactDetails
+import de.swirtz.lwdemo.domain.ClientPhoneNumber
+import de.swirtz.lwdemo.domain.KVReport
+import de.swirtz.lwdemo.domain.KVReportData
+import de.swirtz.lwdemo.domain.RVReport
+import de.swirtz.lwdemo.domain.RVReportData
+import de.swirtz.lwdemo.domain.ReportId
 import de.swirtz.lwdemo.domain.ReportStatus
 import de.swirtz.lwdemo.domain.ReportType
-import de.swirtz.lwdemo.domain.ReportType.SV_RV
 import de.swirtz.lwdemo.domain.ReportType.SV_KV
+import de.swirtz.lwdemo.domain.ReportType.SV_RV
 import de.swirtz.lwdemo.service.PhoneNumberUnifier
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 val RV_DATA_BASE = mapOf(
     "rvNumber" to "123",
@@ -71,5 +80,19 @@ fun createKVReportDTO(data: Map<String, String>? = null, contact: ClientContactD
         contact = contact ?: CONTACT_BASE
     )
 }
+
+fun createRVReport() =
+    RVReport(
+        RVReportData("123", LocalDate.now(), BigDecimal.valueOf(1)),
+        contact = ClientContactDetails("test", "tester", "add", ClientPhoneNumber("01761111111")),
+        ReportId(Random.Default.nextInt(100))
+    )
+
+fun createKVReport() =
+    KVReport(
+        KVReportData("123", LocalDate.now(), BigDecimal.valueOf(1)),
+        contact = ClientContactDetails("test", "tester", "add", ClientPhoneNumber("01761111111")),
+        ReportId(Random.Default.nextInt(100))
+    )
 
 fun createPNUnifer() = PhoneNumberUnifier(PhoneNumberUtil.getInstance())
