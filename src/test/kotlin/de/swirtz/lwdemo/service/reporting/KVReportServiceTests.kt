@@ -8,7 +8,7 @@ import kotlin.test.assertFailsWith
 
 class KVReportServiceTests {
 
-    private val service = KVReportService(ReportServiceConfiguration(0, 0, false))
+    private val service = KVReportService(KVReportServiceConfiguration(0, 0, false))
 
     @Test
     fun `reportAny rejects other types via reportAny`() {

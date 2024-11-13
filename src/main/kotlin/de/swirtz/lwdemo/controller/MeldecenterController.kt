@@ -38,7 +38,7 @@ class MeldecenterController(
     }
 
     @GetMapping("/{id}")
-    fun reportStatus(@PathVariable id: Int): ResponseEntity<RequestedReportStatus> {
+    fun getReportStatus(@PathVariable id: Int): ResponseEntity<RequestedReportStatus> {
         logger.info("Received report status request for report $id")
         val report = reportsService.getReportStatus(id)
         return if (report == null) {

@@ -99,7 +99,7 @@ class MeldecenterControllerIntegrationTests {
     @Test
     fun `before storing, status cannot be retrieved`() {
 
-        val result = controller.reportStatus(1)
+        val result = controller.getReportStatus(1)
 
         assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
     }
@@ -119,7 +119,7 @@ class MeldecenterControllerIntegrationTests {
         )
         val reported = controller.report(dto)
 
-        val result = controller.reportStatus(reported.body!!.toInt())
+        val result = controller.getReportStatus(reported.body!!.toInt())
 
         assertEquals(ReportStatus.AWAITING_SEND.description, result.body!!.status)
     }

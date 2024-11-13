@@ -7,8 +7,8 @@ import de.swirtz.lwdemo.data.ReportsRepository
 import de.swirtz.lwdemo.domain.ReportStatus
 import de.swirtz.lwdemo.service.ReportsService
 import de.swirtz.lwdemo.service.reporting.KVReportService
+import de.swirtz.lwdemo.service.reporting.KVReportServiceConfiguration
 import de.swirtz.lwdemo.service.reporting.RVReportService
-import de.swirtz.lwdemo.service.reporting.ReportServiceConfiguration
 import de.swirtz.lwdemo.service.resolving.KVReportResolver
 import de.swirtz.lwdemo.service.resolving.RVReportResolver
 import de.swirtz.lwdemo.service.resolving.ReportsResolver
@@ -38,10 +38,11 @@ class ReportsDispatcherTests(
             listOf(
                 RVReportService(),
                 KVReportService(
-                    ReportServiceConfiguration(if (kvReportsShouldFail) 100 else 0, 0, false)
+                    KVReportServiceConfiguration(if (kvReportsShouldFail) 100 else 0, 0, false)
                 )
             ),
-            ReportsResolver(listOf(RVReportResolver(pnUnifier), KVReportResolver(pnUnifier)))
+            ReportsResolver(listOf(RVReportResolver(pnUnifier), KVReportResolver(pnUnifier))),
+            DispatcherProperties(3)
         )
 
     @BeforeEach

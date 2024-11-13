@@ -8,8 +8,9 @@ import org.springframework.stereotype.Service
 
 /**
  * Main resolver to translate [ReportDTO] into a known [Report] type. Based on the [ReportDTO.type] it will
- * delegate to a registered [DeliveredReportResolver] and use its [DeliveredReportResolver.convert] method to handle
+ * delegate to a registered [DeliveredReportResolver] and use its [DeliveredReportResolver.convertFromClient] method to handle
  * the conversion.
+ * The resolver also handles conversion from persistence types [ReportEntity] into a know [Report] type using [DeliveredReportResolver.convertFromPersistence].
  *
  * If a required [DeliveredReportResolver] cannot be found, an [IllegalStateException] is thrown.
  */

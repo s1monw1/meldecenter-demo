@@ -9,6 +9,7 @@ import de.swirtz.lwdemo.service.reporting.ReportingResult
 import de.swirtz.lwdemo.service.reporting.ReportingResultEntry
 import de.swirtz.lwdemo.service.resolving.ReportsResolver
 import org.slf4j.LoggerFactory
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
@@ -19,14 +20,7 @@ import kotlin.collections.component2
  *
  * Disclaimer: This scheduling implementation is naive and would not work as expected in a productive environment with multiple instances of this service
  * running. To keep it simple this is acceptable for the demo application. A more sophisticated approach would move the scheduling
- * logic into the environment (e.g. Kubernetes crons) or have a leader node elected
- *
- *
- * Should be scheduled to get batches from DB
- * error handling, fault tolerance
- * state changes
- *
- * only process once
+ * logic into the environment (e.g. Kubernetes crons) or have a leader node elected.
  *
  */
 @Service
@@ -35,13 +29,10 @@ class ReportsDispatcher(
     /* Inject a list of [ReportEndpoint] so we know which report types can be dispatched to downstream services */
     private val reportingEndpoints: List<ReportEndpoint<*>>,
     private val reportsResolver: ReportsResolver,
+    private val properties: DispatcherProperties
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    companion object {
-        private const val REPORTS_PER_BATCH = 3
-    }
 
     @Scheduled(initialDelay = 10, fixedRate = 20, timeUnit = TimeUnit.SECONDS)
     fun triggerReportDispatching() {
@@ -50,7 +41,7 @@ class ReportsDispatcher(
             val latestReportEntities = reportsService.getLatestReportsByType(
                 reportType,
                 listOf(AWAITING_SEND),
-                REPORTS_PER_BATCH
+                properties.batchSize
             )
             if (latestReportEntities.isEmpty()) {
                 logger.info("No reports to process for $reportType")
@@ -102,3 +93,5 @@ class ReportsDispatcher(
 
 }
 
+@ConfigurationProperties("services.dispatcher")
+class DispatcherProperties(val batchSize: Int)

@@ -4,6 +4,7 @@ import de.swirtz.lwdemo.domain.KVReport
 import de.swirtz.lwdemo.domain.Report
 import de.swirtz.lwdemo.domain.ReportType
 import org.slf4j.LoggerFactory
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 import kotlin.random.nextLong
@@ -18,7 +19,7 @@ import kotlin.random.nextLong
  */
 @Service
 class KVReportService(
-    private val config: ReportServiceConfiguration = ReportServiceConfiguration()
+    private val config: KVReportServiceConfiguration
 ) : ReportEndpoint<KVReport> {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -60,10 +61,9 @@ class KVReportService(
     override fun getReportType() = ReportType.SV_KV
 }
 
-//TODO this config would be better handled as part of the application context configuration
-data class ReportServiceConfiguration(
-    val failureRatePercentage: Int = 50,
-    val standardDelayMs: Int = 500,
-    val randomDelayActive: Boolean = true,
-    val serviceAvailable: Boolean = true,
+@ConfigurationProperties("services.kvreportservice")
+class KVReportServiceConfiguration(
+    val failureRatePercentage: Int,
+    val standardDelayMs: Int,
+    val randomDelayActive: Boolean,
 )
