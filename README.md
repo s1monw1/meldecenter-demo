@@ -27,6 +27,14 @@ Setze die Aufgabe in einer Qualität um, die du persönlich für sinnvoll eracht
 - JUnit
 - Docker
 
+### Anwendung starten
+Die Applikation wird mittels Docker-Compose gestartet und verbindet sich damit zu einer lokalen Postgres-Instanz:
+
+Ausführen im Root-Verzeichnis des Projektes.
+```
+docker-compose -p lexware-demo-meldecenter up
+```
+
 
 #### API in MeldecenterController
 
