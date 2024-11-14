@@ -35,6 +35,10 @@ Ausführen im Root-Verzeichnis des Projektes.
 docker-compose -p lexware-demo-meldecenter up
 ```
 
+### API Documentation
+
+Die REST-Endpoints werden rudimentär mittels org.springdoc via Swagger dokumentiert, die Dokumentation ist über [{URL}/swagger-ui/index.html]({URL}/swagger-ui/index.html)
+aufrufbar.
 
 #### API in MeldecenterController
 

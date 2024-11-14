@@ -21,6 +21,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.49")
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
