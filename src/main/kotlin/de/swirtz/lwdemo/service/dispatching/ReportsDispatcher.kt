@@ -22,6 +22,12 @@ import kotlin.collections.component2
  * running. To keep it simple this is acceptable for the demo application. A more sophisticated approach would move the scheduling
  * logic into the environment (e.g. Kubernetes crons) or have a leader node elected.
  *
+ *
+ * This service is scheduled via Spring Scheduling and runs periodically to fetch unsent reports from the database. For each
+ * reporting type the service uses a registered [ReportEndpoint] to send a configured number of reports per scheduling cycle
+ * to reduce the load on the downstream system. The number of reports per cycle per reporting type is configured via [DispatcherProperties].
+ *
+ * The service also handles state handling for [Report]s on a database level using the [ReportsService].
  */
 @Service
 class ReportsDispatcher(

@@ -10,8 +10,8 @@ import kotlin.random.Random
 import kotlin.random.nextLong
 
 /**
- * REDUCED SCOPE: I decided not to integrate mocked web services to communicate the reports to as it would increase the
- * scope of the exercise drastically without adding too much value. I hope that these implementations still show the most
+ * REDUCED SCOPE: Decision not to integrate mocked web services to communicate the reports to as it would increase the
+ * scope of the exercise drastically without adding too much value. These implementations are supposed to still show the most
  * relevant aspects of the expected scope.
  *
  * The service will randomly make reports fail to demonstrate error handling in the application.
