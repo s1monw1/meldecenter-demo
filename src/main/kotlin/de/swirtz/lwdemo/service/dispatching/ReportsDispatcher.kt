@@ -41,7 +41,7 @@ class ReportsDispatcher(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Scheduled(initialDelay = 10, fixedRate = 20, timeUnit = TimeUnit.SECONDS)
-    fun triggerReportDispatching() {
+    fun triggerReportDispatching() = try {
         reportingEndpoints.forEach { endpoint ->
             val reportType = endpoint.getReportType()
             val latestReportEntities = reportsService.getLatestReportsByType(
@@ -63,7 +63,7 @@ class ReportsDispatcher(
             }
 
             val result = reportToEndpoint(latestReports, endpoint, reportType)
-            if (result == null) {
+            if (result == null) { // We assume that all reports failed in this case, which should be further defined.
                 logger.error("Reporting failed for all reports ${latestReports.map { it.value.reportId?.id }}")
 
                 latestReports.forEach { (_, report) ->
@@ -76,6 +76,8 @@ class ReportsDispatcher(
                 }
             }
         }
+    } catch (e: Exception) {
+        logger.error("Exception during dispatching.", e)
     }
 
     private fun reportToEndpoint(

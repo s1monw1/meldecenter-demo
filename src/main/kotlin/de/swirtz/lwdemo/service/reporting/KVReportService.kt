@@ -26,24 +26,28 @@ class KVReportService(
 
     override fun report(reports: List<KVReport>): ReportingResult {
         val results = reports.map {
-            logger.info("Report received with ID ${it.reportId?.id}")
-            Thread.sleep(config.standardDelayMs.toLong())
+            val reportId = it.reportId?.id ?: -1
+            try {
+                logger.info("Report received with ID ${it.reportId?.id}")
+                Thread.sleep(config.standardDelayMs.toLong())
 
-            with(Random.Default) {
-                if (config.randomDelayActive) {
-                    val delayRange = 1000L..3000L
-                    Thread.sleep(nextLong(delayRange))
+                with(Random.Default) {
+                    if (config.randomDelayActive) {
+                        val delayRange = 1000L..3000L
+                        Thread.sleep(nextLong(delayRange))
+                    }
+                    val resultsInRandomError = config.failureRatePercentage > 0 &&
+                            (nextDouble() * 100).toInt() <= config.failureRatePercentage
+                    if (resultsInRandomError) {
+                        logger.error("Report handling randomly failed for ID ${it.reportId?.id}")
+                        ReportingResultEntry(reportId, false, "random error generated", 400)
+                    } else {
+                        logger.error("Report handling succeeded for ID ${it.reportId?.id}")
+                        ReportingResultEntry(reportId, true)
+                    }
                 }
-                val resultsInRandomError = config.failureRatePercentage > 0 &&
-                        (nextDouble() * 100).toInt() <= config.failureRatePercentage
-                val reportId = it.reportId?.id ?: -1
-                if (resultsInRandomError) {
-                    logger.error("Report handling randomly failed for ID ${it.reportId?.id}")
-                    ReportingResultEntry(reportId, false, "random error generated", 400)
-                } else {
-                    logger.error("Report handling succeeded for ID ${it.reportId?.id}")
-                    ReportingResultEntry(reportId, true)
-                }
+            } catch (e: Exception) {
+                ReportingResultEntry(reportId, false, "Error during processing", 500)
             }
         }
         return ReportingResult(results)

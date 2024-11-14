@@ -42,7 +42,7 @@ class MeldecenterController(
         logger.info("Received report status request for report $id")
         val report = reportsService.getReportStatus(id)
         return if (report == null) {
-            notFound().build<RequestedReportStatus>()
+            notFound().build()
         } else ok(report)
     }
 
