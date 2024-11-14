@@ -48,6 +48,36 @@ Der `MeldecenterController` stellt die Schnittstelle zu den einliefernden Client
 
 Hiermit werden die beiden Anforderungen zum Einliefern von Reports (1) und Abfragen des Bearbeitungsstatus (2) bedient.
 
+**Beispiel Request für `report`**
+
+```
+POST /api/meldecenter HTTP/1.1
+Content-Type: application/json
+
+{
+  "type": "SV_RV",
+  "data": {
+    "rvNumber": "123ab",
+    "date": "2024-11-03",
+    "amount": "12345"
+  },
+  "contact": {
+    "name": "Simon",
+    "surName": "Wirtz",
+    "address": "Main Street 1a, 50944 Cologne",
+    "phoneNumber": "01738888888"
+  }
+}
+```
+
+**Beispiel Request für `getReportStatus`**
+
+```
+GET /api/meldecenter/19 HTTP/1.1
+Content-Type: application/json
+
+```
+
 ### Services
 
 1. **ReportsService**
@@ -85,24 +115,24 @@ In der aktuellen Implementierung wurde auf eine realistische Kommunikation zu de
 
 2. **Production-ready Scheduling/Batching Ansatz**
 
-Der `ReportsDispatcher` wird über Spring's `@Scheduled` Annotation als ein Scheduled Task registriert, um den regelmäßigen Batch-Versand zu ermöglichen. Der Ansatz skaliert nicht gut und müsste in einer produktiven Anwendung mit einer besseren Lösung ersetzt werden. Das Hauptproblem wäre, dass in einer Architektur
-mit mehreren Service-Instanzen dafür zu sorgen ist, dass nur eine Instanz das Scheduling erledigt. Es ist denkbar, das Scheduling extern vom eigentlichen Service zu handhaben um damit eine spezifische Backend-Instanz (vom Loadbalancer gewählt) zu triggern.  
+Der `ReportsDispatcher` wird über Spring's `@Scheduled` Annotation als ein Scheduled Task registriert, um den regelmäßigen Batch-Versand zu ermöglichen. Der Ansatz skaliert nicht ausreichend gut und müsste in einer produktiven Anwendung mit einer besseren Lösung ersetzt werden. Das Hauptproblem wäre, dass in einer Architektur
+mit mehreren Service-Instanzen dafür zu sorgen ist, dass nur eine Instanz das Batching/Reporting erledigt. Es ist denkbar, das Scheduling extern vom eigentlichen Service zu handhaben um damit eine spezifische Backend-Instanz (vom Loadbalancer gewählt) zu triggern.  
 
 3. **Event-basierte Kommunikation zur Abarbeitung von Reports**
 
-Möglicherweise wäre denkbar Event-Driven Design zu nutzen um die Anwendung skalierbarer und flexibler zu machen. Denkbar sind Technologien wie Kafka oder RabbitMQ. 
+Möglicherweise wäre denkbar einen Event-Driven-Design Ansatz zu nutzen, um die Anwendung skalierbarer und flexibler zu gestalten. Denkbar sind Technologien wie Kafka oder RabbitMQ. 
 
 4. **Tracking der Status-Änderungen zur besseren Nachverfolgung**
 
-Als Teilaspekt des Reportings an die externen Systeme, werden Reports auf Ebene der Datenbank in Bezug auf die vorhanden `ReportStatus` verändert. Zum Beispiel wird dabei ein Report der im `AWAITING_SEND` status ist zunächst in den Status `IN_TRANSIT` und am Ende auf `SENT` oder `FAILED` gesetzt. Es ist aktuell nicht langfristig nachvollziehbar, wann
-welcher Status warum geändert wurde. Aus diesem Grund wäre es sinnvoll eine zusätzliche (Audit-)Tabelle für jegliche Status-Änderung zu haben.
+Als Teilaspekt des Reportings an die externen Systeme werden Reports auf Ebene der Datenbank in Bezug auf die vorhanden `ReportStatus` verändert. Zum Beispiel wird hierbei ein Report, der im `AWAITING_SEND` Status ist, zunächst in den Status `IN_TRANSIT`, und am Ende auf `SENT` oder `FAILED` gesetzt. Es ist aktuell nicht langfristig nachvollziehbar, wann
+welcher Status weshalb verändert wurde. Aus diesem Grund wäre es sinnvoll eine zusätzliche (Audit-)Tabelle für jegliche Status-Änderung zu implementieren.
 
 5. **Fault-Tolerance und Resilience: Error Handling, Circuit Breakers, Retries**
 
-Im Zusammenhang mit (1) und der sinnvollen Erweiterung auf HTTP-basierte Kommunikation zu den externen Reportingsystemen wäre es zudem wünschenswert auf mögliche Fehler dahingehend zu reagieren, dass ein fehlgeschlagenes Reporting mittels Retries verbessert wird. Auf gewisse Fehler kann unmittelbar nach Fehlschlag reagiert werden. So wäre es 
-denkbar zeitweise nicht-verfügbare Services bereits umgehend erneut anzufragen. In anderen Fällen wäre ein Retry im nächsten Scheduling-Zyklus des `ReportsDispatcher` erfolgsversprechender. Hierzu wäre empfehlenswert die Datenbank-Tabelle um einen Failure-Counter für Reports zu erweitern und Reports die im Status `FAILED` sind erneut zu versenden versucht werden.
-Circuit Breaker können genutzt werden um den Status der externen Systeme zu überwachen und einzubeziehen und das System insgesamt Fehler-toleranter zu gestalten. 
+Im Zusammenhang mit (1) und der sinnvollen Erweiterung auf HTTP-basierte Kommunikation zu den externen Reporting-Systemen wäre es wünschenswert auf mögliche Fehler dahingehend zu reagieren, dass ein fehlgeschlagenes Reporting mittels Retries verbessert wird. Auf gewisse Fehler kann unmittelbar nach Fehlschlag reagiert werden. So wäre es 
+denkbar kurzzeitig nicht-antwortende APIs bereits umgehend erneut anzufragen. In anderen Fällen wäre ein Retry im nächsten Scheduling-Zyklus des `ReportsDispatcher` erfolgsversprechender. Hierzu wäre denkbar, die reports Datenbank-Tabelle um einen Failure-Counter zu erweitern und Reports, die im Status `FAILED` sind, erneut zu versenden.
+Circuit Breaker können genutzt werden, um den Status der externen Systeme zu überwachen und einzubeziehen und das System insgesamt Fehler-toleranter zu gestalten. 
  
 6. **Authentication**
 
-In einem produktiven Umfeld müsste der Service natürlich über Auth-Mechanismen abgesichert werden, sodass die APIs nur für authentifizierte Nutzer zugänglich ist. 
+In einem produktiven Umfeld müsste der Service über Auth-Mechanismen abgesichert werden, sodass die APIs nur für authentifizierte Nutzer zugänglich sind. 
